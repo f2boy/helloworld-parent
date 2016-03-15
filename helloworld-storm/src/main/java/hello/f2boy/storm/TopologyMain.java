@@ -1,10 +1,16 @@
+package hello.f2boy.storm;
+
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import hello.f2boy.storm.bolts.WordCounter;
+import hello.f2boy.storm.bolts.WordNormalizer;
+import hello.f2boy.storm.spouts.WordReader;
 
 public class TopologyMain {
     public static void main(String[] args) throws InterruptedException {
+
         //定义拓扑
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("word-reader", new WordReader());

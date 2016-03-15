@@ -1,3 +1,5 @@
+package hello.f2boy.storm.spouts;
+
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichSpout;
@@ -35,11 +37,12 @@ public class WordReader implements IRichSpout {
      */
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
+        String wordsFile = map.get("wordsFile").toString();
         try {
             this.context = topologyContext;
-            this.fileReader = new FileReader(map.get("wordsFile").toString());
+            this.fileReader = new FileReader(wordsFile);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Error reading file [" + map.get("wordFile") + "]");
+            throw new RuntimeException("Error reading file [" + wordsFile + "]");
         }
         this.collector = spoutOutputCollector;
 

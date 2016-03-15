@@ -1,3 +1,5 @@
+package hello.f2boy.storm.bolts;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichBolt;
