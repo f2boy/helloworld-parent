@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.f2boy</groupId>
-  <artifactId>helloworld</artifactId>
+  <artifactId>helloworld-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <modules>
     <module>helloworld-storm</module>
