@@ -8,9 +8,11 @@ public class Consumer {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:spring-consumer.xml");
 
         HelloService helloService = context.getBean(HelloService.class); // 获取远程服务代理
-        String hello = helloService.find(1);
 
-        System.out.println(hello); // 显示调用结果
+        for (int i = 0; i < 10; ++i) {
+            String hello = helloService.find(i);
+            System.out.println(hello); // 显示调用结果
+        }
     }
 
 }
