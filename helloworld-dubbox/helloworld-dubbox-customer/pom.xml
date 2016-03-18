@@ -6,17 +6,16 @@
 
   <parent>
     <groupId>com.f2boy</groupId>
-    <artifactId>helloworld-parent</artifactId>
+    <artifactId>helloworld-dubbox</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>helloworld-storm</artifactId>
+  <artifactId>helloworld-dubbox-customer</artifactId>
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.storm</groupId>
-      <artifactId>storm-core</artifactId>
-      <version>0.10.0</version>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>helloworld-dubbox-api</artifactId>
     </dependency>
   </dependencies>
 
