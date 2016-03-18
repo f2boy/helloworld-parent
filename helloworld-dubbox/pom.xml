@@ -16,7 +16,7 @@
   <modules>
     <module>helloworld-dubbox-api</module>
     <module>helloworld-dubbox-provider</module>
-    <module>helloworld-dubbox-customer</module>
+    <module>helloworld-dubbox-consumer</module>
   </modules>
 
   <dependencyManagement>
