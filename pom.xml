@@ -10,8 +10,10 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>helloworld-core</module>
     <module>helloworld-storm</module>
     <module>helloworld-dubbox</module>
+    <module>helloworld-netty</module>
   </modules>
 
   <properties>
@@ -28,6 +30,12 @@
 
   <dependencyManagement>
     <dependencies>
+
+      <dependency>
+        <groupId>com.f2boy</groupId>
+        <artifactId>helloworld-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.springframework</groupId>
