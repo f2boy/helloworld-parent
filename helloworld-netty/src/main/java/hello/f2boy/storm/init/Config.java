@@ -2,25 +2,31 @@ package hello.f2boy.storm.init;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.util.Properties;
 
 public class Config {
 
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
-    private static Properties properties;
+    private static Properties props;
 
     /**
      * 获取配置文件
      */
-    public static Properties initConfit() {
-        Properties prop = new Properties();
+    public static void initConfig() {
+        Properties props;
         try {
-            Config.properties = prop;
+            Resource resource = new ClassPathResource("netty.properties");
+            props = PropertiesLoaderUtils.loadProperties(resource);
         } catch (Exception e) {
             logger.error("初始化系统配置文件失败", e);
+            props = new Properties();
         }
-        return prop;
+
+        Config.props = props;
     }
 
     /**
@@ -31,11 +37,12 @@ public class Config {
     public static int getTcpPort() {
         int port = 9999;
         try {
-            String value = Config.properties.getProperty("netty.tcp.server.port");
+            String value = props.getProperty("netty.tcp.server.port");
             port = Integer.parseInt(value);
         } catch (Exception e) {
-            logger.error("获取TCP端口失败，使用默认[9999]端口", e);
+            logger.warn("获取TCP端口失败，使用默认[9999]端口", e);
         }
+
         return port;
     }
 
@@ -47,11 +54,12 @@ public class Config {
     public static int getWebsocketPort() {
         int port = 6443;
         try {
-            String value = Config.properties.getProperty("netty.websocket.server.port");
+            String value = props.getProperty("netty.websocket.server.port");
             port = Integer.parseInt(value);
         } catch (Exception e) {
-            logger.error("获取Websocket端口失败", e);
+            logger.error("获取Websocket端口失败，使用默认[6443]端口", e);
         }
+
         return port;
     }
 
@@ -63,10 +71,12 @@ public class Config {
     public static String getWebsocketPath() {
         String value = "/websocket";
         try {
-            value = Config.properties.getProperty("netty.websocket.server.path");
+            value = props.getProperty("netty.websocket.server.path");
         } catch (Exception e) {
-            logger.error("获取Websocket路径失败", e);
+            logger.error("获取Websocket路径失败，使用默认[/websocket]路径", e);
         }
+
         return value;
     }
+
 }

@@ -29,7 +29,7 @@ public class TcpClient {
      *
      * @return Bootstrap
      */
-    public static final Bootstrap getBootstrap() {
+    public static Bootstrap getBootstrap() {
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();
         b.group(group).channel(NioSocketChannel.class);
@@ -41,6 +41,7 @@ public class TcpClient {
                 pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
                 pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
                 pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+                pipeline.addLast(new TcpClientHandler());
             }
         });
         b.option(ChannelOption.SO_KEEPALIVE, true);
@@ -54,8 +55,8 @@ public class TcpClient {
      * @param port 端口
      * @return Channel
      */
-    public static final Channel getChannel(String host, int port) {
-        Channel channel = null;
+    public static Channel getChannel(String host, int port) {
+        Channel channel;
         try {
             channel = bootstrap.connect(host, port).sync().channel();
         } catch (Exception e) {
@@ -92,8 +93,8 @@ public class TcpClient {
     public static void main(String[] args) throws Exception {
         try {
             long t0 = System.nanoTime();
-            for (int i = 0; i < 100000; i++) {
-                TcpClient.sendMsg(i + "你好1");
+            for (int i = 0; i < 1000; i++) {
+                TcpClient.sendMsg(i + ", 你好！");
             }
             long t1 = System.nanoTime();
         } catch (Exception e) {

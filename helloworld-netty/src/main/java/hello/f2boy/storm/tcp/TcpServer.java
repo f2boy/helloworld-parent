@@ -23,6 +23,7 @@ public class TcpServer extends Thread {
     public void run() {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
+        int port = Config.getTcpPort();
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup);
@@ -38,11 +39,11 @@ public class TcpServer extends Thread {
                     pipeline.addLast(new TcpServerHandler());
                 }
             });
-            Channel channel = b.bind(Config.getTcpPort()).sync().channel();
-            logger.info("TCP服务器已启动");
+            Channel channel = b.bind(port).sync().channel();
+            logger.info("TCP服务[" + port + "]已启动");
             channel.closeFuture().sync();
         } catch (Exception e) {
-            logger.error("TCP服务器启动异常", e);
+            logger.error("TCP服务[" + port + "]启动异常", e);
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
