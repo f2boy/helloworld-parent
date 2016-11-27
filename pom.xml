@@ -15,6 +15,7 @@
     <module>helloworld-dubbox</module>
     <module>helloworld-netty</module>
     <module>helloworld-hadoop</module>
+    <module>helloworld-kafka</module>
   </modules>
 
   <properties>
