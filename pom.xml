@@ -12,7 +12,6 @@
   <modules>
     <module>helloworld-core</module>
     <module>helloworld-storm</module>
-    <module>helloworld-dubbox</module>
     <module>helloworld-netty</module>
     <module>helloworld-hadoop</module>
     <module>helloworld-kafka</module>
