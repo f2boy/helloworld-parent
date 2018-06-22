@@ -2,6 +2,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class TestProducer {
@@ -17,14 +19,17 @@ public class TestProducer {
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
         Producer<String, String> producer = new KafkaProducer<>(props);
-        for (int i = 0; i < 100; i++) {
-            producer.send(new ProducerRecord<>("test", "key" + i, "value" + i), (metadata, e) -> {
-                if (e != null) {
-                    e.printStackTrace();
-                }
-                System.out.println("The offset of the record we just sent is: " + metadata.offset());
-            });
-        }
+
+        producer.send(new ProducerRecord<>("fcboxClientPostQueue", "{\"cmd\":\"STAFFGETORDER\",\"uicUserId\":350792370455833049,\"busyStatus\":1,\"clientPostTime\":\"2017-04-17 18:40:45\",\"closeTime\":\"2017-05-01 18:40:45\"}"));
+
+//        for (int i = 0; i < 100; i++) {
+//            producer.send(new ProducerRecord<>("test", "key" + i, "value" + i), (metadata, e) -> {
+//                if (e != null) {
+//                    e.printStackTrace();
+//                }
+//                System.out.println("The offset of the record we just sent is: " + metadata.offset());
+//            });
+//        }
 
         producer.close();
     }
