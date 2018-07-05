@@ -5,7 +5,7 @@ import java.util.Date;
 
 /**
  * 生产者-消费者demo
- * 用一个厕所管理员和两个上厕所的人做例子
+ * 用一个厕所管理员和多个上厕所的人做例子
  * 生产者 - 厕所管理员，给厕所加厕纸
  * 消费者 - 上厕所的人，使用厕纸
  */
@@ -17,15 +17,7 @@ public class ProducerConsumerDemo {
      * 厕所，表示竞争的锁对象
      */
     static class Toilet {
-        int toiletPaper = 0;
-
-        void shit() {
-            try {
-                Thread.sleep(shitTime);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        int toiletPaper = 0; // 厕纸
     }
 
     /**
@@ -55,7 +47,12 @@ public class ProducerConsumerDemo {
                     }
                 }
                 toilet.toiletPaper--;
-                toilet.shit();
+                // 模拟shit
+                try {
+                    Thread.sleep(shitTime);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log(currentThread + " finished shit.");
             }
         }
@@ -85,29 +82,40 @@ public class ProducerConsumerDemo {
         Toilet toilet = new Toilet();
 
         // 急于上厕所的用户线程
-        People people1 = new People(toilet, 1);
-        People people2 = new People(toilet, 2);
+        People[] peoples = new People[3];
+        for (int i = 0; i < peoples.length; i++) {
+            peoples[i] = new People(toilet, i + 1);
+        }
 
         // 厕所管理员线程，给厕所加纸
         Manager manager = new Manager(toilet);
 
-        people1.start();
-        people2.start();
-        log("At first, state of people1 is [" + people1.getState() + "], state of people2 is [" + people2.getState()+ "]");
+        for (People people : peoples) {
+            people.start();
+        }
+        log("At first, states: " + allStates(peoples));
 
         Thread.sleep(10);
-        log("When they enter the toilet , state of people1 is [" + people1.getState() + "], state of people2 is [" + people2.getState()+ "]");
+        log("When they entered the toilet, states: " + allStates(peoples));
 
         manager.start();
 
         Thread.sleep(10);
-        log("After manager add paper, state of people1 is [" + people1.getState() + "], state of people2 is [" + people2.getState()+ "]");
+        log("After manager added paper, states: " + allStates(peoples));
 
-        Thread.sleep(shitTime + 10);
-        log("After One of People finished shit, state of people1 is [" + people1.getState() + "], state of people2 is [" + people2.getState()+ "]");
+        for (People ignored : peoples) {
+            Thread.sleep(shitTime);
+            log("After One of People finished shit, states: " + allStates(peoples));
+        }
+    }
 
-        Thread.sleep(shitTime + 10);
-        log("After Two People finished shit, state of people1 is [" + people1.getState() + "], state of people2 is [" + people2.getState()+ "]");
+    private static String allStates(People[] peoples) {
+        StringBuilder sb = new StringBuilder("[");
+        for (People people : peoples) {
+            sb.append(people.getState().name()).append(", ");
+        }
+
+        return sb.substring(0, sb.length() - 2) + "]";
     }
 
     private static void log(String content) {
