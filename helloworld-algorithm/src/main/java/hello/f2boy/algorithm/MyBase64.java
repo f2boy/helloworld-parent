@@ -169,7 +169,7 @@ public class MyBase64 {
 
         System.out.println("Encode:");
         String myResult = encode(source);
-        String jdkResult = new BASE64Encoder().encode(source.getBytes()).replaceAll("\r\n", "");
+        String jdkResult = new BASE64Encoder().encode(source.getBytes(charset)).replaceAll("\r\n", "");
         System.out.println("\tmyResult  : [" + myResult + "]");
         System.out.println("\tjdkResult : [" + jdkResult + "]");
         System.out.println("\tmyResult.equals(jdkResult) = " + myResult.equals(jdkResult));
