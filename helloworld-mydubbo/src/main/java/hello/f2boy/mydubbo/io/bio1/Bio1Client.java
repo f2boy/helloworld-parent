@@ -12,9 +12,9 @@ public class Bio1Client {
         InputStream is = socket.getInputStream();
         OutputStream os = socket.getOutputStream();
         os.write((Thread.currentThread().getName() + "\n").getBytes());
-        os.write(("222\n").getBytes());
-        os.write(("333\n").getBytes());
-        os.write(("bye\n").getBytes());
+        os.write("222\n".getBytes());
+        os.write("333\n".getBytes());
+        os.write("bye\n".getBytes());
 
         String input = "";
         int c;
