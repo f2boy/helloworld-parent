@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class Bio2Server {
 
@@ -85,6 +86,15 @@ public class Bio2Server {
             e.printStackTrace();
         }
 
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                System.out.println("executor did not shutdown gracefully within 5 seconds.");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         for (Socket socket : sockets) {
             if (socket == null || socket.isClosed()) continue;
             try {
@@ -101,7 +111,7 @@ public class Bio2Server {
 
         new Thread(Bio2Server::start).start();
 
-        Thread.sleep(1000 * 60 * 9);
+        Thread.sleep(1000 * 60 * 10);
         System.exit(0);
     }
 

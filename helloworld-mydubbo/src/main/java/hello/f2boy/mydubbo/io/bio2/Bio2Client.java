@@ -18,23 +18,32 @@ public class Bio2Client {
         OutputStream os = socket.getOutputStream();
 
         new Thread(() -> {
-
             String input = "";
             char c;
             while (true) {
                 try {
                     c = (char) System.in.read();
-                    input += c;
-                    if (c == '\n') {
-                        os.write(input.getBytes());
-                        if (input.equals(BYE + "\n")) {
-                            break;
-                        }
-                        input = "";
-                    }
-
                 } catch (IOException e) {
                     e.printStackTrace();
+                    continue;
+                }
+
+                input += c;
+                if (c == '\n') {
+                    if (input.equals("exit\n")) {
+                        countDownLatch.countDown();
+                        break;
+                    }
+
+                    try {
+                        os.write(input.getBytes());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (input.equals(BYE + "\n")) {
+                        break;
+                    }
+                    input = "";
                 }
             }
         }).start();
