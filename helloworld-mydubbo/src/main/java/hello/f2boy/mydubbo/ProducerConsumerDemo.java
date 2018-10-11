@@ -11,7 +11,24 @@ import java.util.Date;
  */
 public class ProducerConsumerDemo {
 
-    static long shitTime = 1000L;
+    static final long shitTime = 1000L;
+
+    // 厕所，代表线程要竞争的锁
+    static final Toilet toilet = new Toilet();
+
+    // 急于上厕所的用户线程
+    static final People[] peoples;
+
+    // 厕所管理员线程，给厕所加纸
+    static final Manager manager;
+
+    static {
+        peoples = new People[3];
+        manager = new Manager(toilet);
+        for (int i = 0; i < peoples.length; i++) {
+            peoples[i] = new People(toilet, i + 1);
+        }
+    }
 
     /**
      * 厕所，表示竞争的锁对象
@@ -35,26 +52,29 @@ public class ProducerConsumerDemo {
 
         @Override
         public void run() {
+            String currentThread = Thread.currentThread().getName();
+            log(currentThread + " try to enter the toilet.");
             synchronized (toilet) {
-                String currentThread = Thread.currentThread().getName();
-                log(currentThread + " enter the toilet.");
+                log(currentThread + " entered the toilet.");
                 while (toilet.toiletPaper <= 0) {
-                    log(currentThread + " now to be go out and waiting.");
+                    log("There is no more paper, " + currentThread + " had to go out and waiting.");
                     try {
                         toilet.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    log(currentThread + " reentered the toilet.");
                 }
                 toilet.toiletPaper--;
+                log(currentThread + " begin shit.");
                 // 模拟shit
                 try {
                     Thread.sleep(shitTime);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                log(currentThread + " finished shit.");
             }
+            log(currentThread + " finished shit. states: " + allStates(peoples));
         }
     }
 
@@ -70,43 +90,24 @@ public class ProducerConsumerDemo {
         @Override
         public void run() {
             synchronized (toilet) {
-                toilet.toiletPaper = 10;
+                toilet.toiletPaper = 3;
                 toilet.notifyAll();
             }
+            log("After manager added paper, states: " + allStates(peoples));
         }
     }
 
     public static void main(String[] args) throws InterruptedException {
-
-        // 厕所，代表线程要竞争的锁
-        Toilet toilet = new Toilet();
-
-        // 急于上厕所的用户线程
-        People[] peoples = new People[3];
-        for (int i = 0; i < peoples.length; i++) {
-            peoples[i] = new People(toilet, i + 1);
-        }
-
-        // 厕所管理员线程，给厕所加纸
-        Manager manager = new Manager(toilet);
 
         for (People people : peoples) {
             people.start();
         }
         log("At first, states: " + allStates(peoples));
 
-        Thread.sleep(10);
-        log("When they entered the toilet, states: " + allStates(peoples));
+        Thread.sleep(100);
+        log("When all they tried to enter the toilet, states: " + allStates(peoples));
 
         manager.start();
-
-        Thread.sleep(10);
-        log("After manager added paper, states: " + allStates(peoples));
-
-        for (People ignored : peoples) {
-            Thread.sleep(shitTime);
-            log("After One of People finished shit, states: " + allStates(peoples));
-        }
     }
 
     private static String allStates(People[] peoples) {
