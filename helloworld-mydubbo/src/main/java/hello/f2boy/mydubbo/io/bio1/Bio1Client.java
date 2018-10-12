@@ -16,14 +16,14 @@ public class Bio1Client {
         os.write("222\n".getBytes());
         os.write("bye\n".getBytes());
 
-        String input = "";
+        String resp = "";
         int c;
         while ((c = is.read()) != -1) {
             if (c == '\n') {
-                System.out.println(input);
-                input = "";
+                System.out.println(resp);
+                resp = "";
             } else {
-                input += (char) c;
+                resp += (char) c;
             }
         }
 

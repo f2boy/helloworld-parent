@@ -44,7 +44,7 @@ public class Bio2Server {
             executor.execute(() -> {
 
                 InetSocketAddress remoteAddress = ((InetSocketAddress) socket.getRemoteSocketAddress());
-                String client = remoteAddress.getHostName() + ":" + remoteAddress.getPort();
+                String client = "[" + remoteAddress.getHostName() + ":" + remoteAddress.getPort() + "]";
 
                 try {
                     InputStream is = socket.getInputStream();

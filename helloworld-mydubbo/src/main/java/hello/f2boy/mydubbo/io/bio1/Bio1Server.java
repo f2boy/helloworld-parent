@@ -19,7 +19,7 @@ public class Bio1Server {
 
             new Thread(() -> {
                 InetSocketAddress remoteAddress = ((InetSocketAddress) socket.getRemoteSocketAddress());
-                String client = remoteAddress.getHostName() + ":" + remoteAddress.getPort();
+                String client = "[" + remoteAddress.getHostName() + ":" + remoteAddress.getPort() + "]";
 
                 try {
                     InputStream is = socket.getInputStream();
