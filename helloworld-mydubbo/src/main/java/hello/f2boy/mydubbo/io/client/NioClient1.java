@@ -1,4 +1,4 @@
-package hello.f2boy.mydubbo.io.nio1;
+package hello.f2boy.mydubbo.io.client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Random;
 
-public class Nio1Client {
+public class NioClient1 {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         boolean blockMode = new Random().nextBoolean();

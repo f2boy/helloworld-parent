@@ -1,4 +1,4 @@
-package hello.f2boy.mydubbo.io.bio2;
+package hello.f2boy.mydubbo.io.server;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class Bio2Server {
+public class BioServer2 {
 
     private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
@@ -107,9 +107,9 @@ public class Bio2Server {
 
     public static void main(String[] args) throws Exception {
 
-        Runtime.getRuntime().addShutdownHook(new Thread(Bio2Server::stop));
+        Runtime.getRuntime().addShutdownHook(new Thread(BioServer2::stop));
 
-        new Thread(Bio2Server::start).start();
+        new Thread(BioServer2::start).start();
 
         Thread.sleep(1000 * 60 * 10);
         System.exit(0);

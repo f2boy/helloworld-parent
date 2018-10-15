@@ -1,4 +1,4 @@
-package hello.f2boy.mydubbo.io.nio1;
+package hello.f2boy.mydubbo.io.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-public class Nio1Server {
+public class NioServer1 {
 
     public static void main(String[] args) throws Exception {
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();

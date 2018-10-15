@@ -1,4 +1,4 @@
-package hello.f2boy.mydubbo.io.nio2;
+package hello.f2boy.mydubbo.io.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -9,7 +9,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
-public class Nio2Server {
+public class NioServer2 {
 
     private static void onAccept(SelectionKey selectionKey) {
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectionKey.channel();

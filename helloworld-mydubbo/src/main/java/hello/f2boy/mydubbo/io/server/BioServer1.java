@@ -1,4 +1,4 @@
-package hello.f2boy.mydubbo.io.bio1;
+package hello.f2boy.mydubbo.io.server;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Bio1Server {
+public class BioServer1 {
 
     private static void start() throws IOException {
 
@@ -55,7 +55,7 @@ public class Bio1Server {
 
     public static void main(String[] args) throws Exception {
 
-        Bio1Server.start();
+        BioServer1.start();
     }
 
 }

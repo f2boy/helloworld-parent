@@ -1,4 +1,4 @@
-package hello.f2boy.mydubbo.io.bio2;
+package hello.f2boy.mydubbo.io.client;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.concurrent.CountDownLatch;
 
-public class Bio2Client {
+public class BioClient2 {
 
     public static final String BYE = "bye";
 
