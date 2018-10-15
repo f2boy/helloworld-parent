@@ -10,7 +10,7 @@ public class Nio1Server {
 
     public static void main(String[] args) throws Exception {
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-        serverSocketChannel.bind(new InetSocketAddress("127.0.0.1", 1234));
+        serverSocketChannel.bind(new InetSocketAddress(1234));
         serverSocketChannel.configureBlocking(true);
 
         while (true) {
