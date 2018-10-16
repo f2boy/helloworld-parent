@@ -19,13 +19,12 @@ public class NioServer3 {
 
     private static final Processor[] processors = new Processor[PROCESSOR_NUM];
 
-    private static final BlockingQueue<SocketChannel> newConnections = new LinkedBlockingDeque<>();
-
     private static class Processor extends Thread {
 
         private Selector selector;
         private ByteBuffer receiveBuff = ByteBuffer.allocate(256);
         private ByteBuffer sendBuff = ByteBuffer.allocate(256);
+        private final BlockingQueue<SocketChannel> newConnections = new LinkedBlockingDeque<>();
 
         public Processor(String name) {
             super(name);
@@ -123,7 +122,7 @@ public class NioServer3 {
                         socketChannel.register(selector, SelectionKey.OP_READ);
                     }
 
-                    if (selector.select() == 0) {
+                    if (selector.select(5000) == 0) {
                         continue;
                     }
                 } catch (IOException e) {
@@ -136,7 +135,7 @@ public class NioServer3 {
                     SelectionKey selectionKey = iter.next();
                     iter.remove();
                     if (selectionKey.isReadable()) {
-                        PrintUtils.println("---------------------readable---------------------");
+                        PrintUtils.println("------------------------------ received message ------------------------------");
                         handleRead(selectionKey);
                     }
                 }
@@ -188,7 +187,7 @@ public class NioServer3 {
                 SelectionKey selectionKey = iter.next();
                 iter.remove();
                 if (selectionKey.isAcceptable()) {
-                    PrintUtils.println("---------------------acceptable---------------------");
+                    PrintUtils.println("------------------------------ accepted new connection ------------------------------");
                     onAccept(selectionKey, current++);
                 }
             }
