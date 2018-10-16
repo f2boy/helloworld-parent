@@ -1,5 +1,7 @@
 package hello.f2boy.mydubbo.io.client;
 
+import hello.f2boy.mydubbo.PrintUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -20,7 +22,7 @@ public class NioClient2 {
         buffer.put("Do you love me?\n".getBytes());
         buffer.flip();
         while (buffer.hasRemaining()) {
-            System.out.println(buffer);
+            PrintUtils.println(buffer.toString());
             socketChannel.write(buffer);
         }
 
@@ -30,13 +32,13 @@ public class NioClient2 {
         buffer.put("bye\n".getBytes());
         buffer.flip();
         while (buffer.hasRemaining()) {
-            System.out.println(buffer);
+            PrintUtils.println(buffer.toString());
             socketChannel.write(buffer);
         }
 
         String resp = "";
         if (blockMode) {
-            System.out.println("\nSocket方式读");
+            PrintUtils.println("\nSocket方式读");
             InputStream is = socketChannel.socket().getInputStream();
             int c;
             while ((c = is.read()) != -1) {
@@ -45,18 +47,18 @@ public class NioClient2 {
         }
         // SocketChannel方式读，可设置为非阻塞模式
         else {
-            System.out.println("\nSocketChannel方式读");
+            PrintUtils.println("\nSocketChannel方式读");
             buffer.clear();
             while (socketChannel.read(buffer) != -1) { // 非阻塞模式下，此处while条件会立即返回，也就是说会陷入死循环
                 Thread.sleep(1);
             }
             buffer.flip();
-            System.out.println("receive-buffer: " + buffer);
+            PrintUtils.println("receive-buffer: " + buffer);
             while (buffer.hasRemaining()) {
                 resp += (char) buffer.get();
             }
         }
-        System.out.println(resp);
+        PrintUtils.println(resp);
 
         socketChannel.close();
     }

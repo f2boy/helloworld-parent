@@ -1,5 +1,7 @@
 package hello.f2boy.mydubbo.io.client;
 
+import hello.f2boy.mydubbo.PrintUtils;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -19,7 +21,7 @@ public class NioClient1 {
         buffer.put("Do you love me?\n".getBytes());
         buffer.flip();
         while (buffer.hasRemaining()) {
-            System.out.println(buffer);
+            PrintUtils.println(buffer.toString());
             socketChannel.write(buffer);
         }
 
@@ -27,7 +29,7 @@ public class NioClient1 {
         buffer.put("bye\n".getBytes());
         buffer.flip();
         while (buffer.hasRemaining()) {
-            System.out.println(buffer);
+            PrintUtils.println(buffer.toString());
             socketChannel.write(buffer);
         }
 

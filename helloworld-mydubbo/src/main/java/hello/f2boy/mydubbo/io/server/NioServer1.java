@@ -1,5 +1,7 @@
 package hello.f2boy.mydubbo.io.server;
 
+import hello.f2boy.mydubbo.PrintUtils;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -28,7 +30,7 @@ public class NioServer1 {
                             char c = (char) buffer.get();
                             message += c;
                             if (c == '\n') {
-                                System.out.print(client + " send message: " + message);
+                                PrintUtils.print(client + " send message: " + message);
                                 if (message.equals("bye\n")) {
                                     socketChannel.close();
                                     break;
@@ -38,7 +40,7 @@ public class NioServer1 {
                         }
                         buffer.compact();
                     }
-                    System.out.println(client + " process complete.\n");
+                    PrintUtils.println(client + " process complete.\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -1,5 +1,7 @@
 package hello.f2boy.mydubbo.io.server;
 
+import hello.f2boy.mydubbo.PrintUtils;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -40,7 +42,7 @@ public class NioServer2 {
                 char c = (char) readBuff.get();
                 message += c;
                 if (c == '\n') {
-                    System.out.print(client + " send message: " + message);
+                    PrintUtils.print(client + " send message: " + message);
 
                     writeBuff.put(("your message is: " + message).getBytes());
                     if (message.equals("bye\n")) {
@@ -76,7 +78,7 @@ public class NioServer2 {
             }
             if (writeBuff.limit() >= 4) {
                 writeBuff.position(writeBuff.limit() - 4);
-//            System.out.println("writeBuff: " + writeBuff);
+//            PrintUtils.println("writeBuff: " + writeBuff);
                 String message = "";
                 while (writeBuff.hasRemaining()) {
                     message += (char) writeBuff.get();
@@ -84,7 +86,7 @@ public class NioServer2 {
                 if (message.equals("bye\n")) {
                     selectionKey.cancel();
                     socketChannel.close();
-                    System.out.println(client + " process complete.\n");
+                    PrintUtils.println(client + " process complete.\n");
                     return;
                 }
             }
@@ -111,7 +113,7 @@ public class NioServer2 {
 
         while (true) {
             if (selector.select(1000) == 0) {
-//                System.out.println("selector 没有事件");
+//                PrintUtils.println("selector 没有事件");
                 continue;
             }
 
@@ -119,18 +121,18 @@ public class NioServer2 {
             while (iter.hasNext()) {
                 SelectionKey selectionKey = iter.next();
                 if (selectionKey.isConnectable()) {
-                    System.out.println("---------------------connectable---------------------");
+                    PrintUtils.println("---------------------connectable---------------------");
                 }
                 if (selectionKey.isAcceptable()) {
-                    System.out.println("---------------------acceptable---------------------");
+                    PrintUtils.println("---------------------acceptable---------------------");
                     onAccept(selectionKey);
                 }
                 if (selectionKey.isValid() && selectionKey.isReadable()) {
-                    System.out.println("---------------------readable---------------------");
+                    PrintUtils.println("---------------------readable---------------------");
                     onRead(selectionKey);
                 }
                 if (selectionKey.isValid() && selectionKey.isWritable()) {
-                    System.out.println("---------------------writable---------------------");
+                    PrintUtils.println("---------------------writable---------------------");
                     onWrite(selectionKey);
                 }
                 iter.remove();

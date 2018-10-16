@@ -1,5 +1,7 @@
 package hello.f2boy.mydubbo.io.client;
 
+import hello.f2boy.mydubbo.PrintUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,7 +22,7 @@ public class BioClient1 {
         int c;
         while ((c = is.read()) != -1) {
             if (c == '\n') {
-                System.out.println(resp);
+                PrintUtils.println(resp);
                 resp = "";
             } else {
                 resp += (char) c;

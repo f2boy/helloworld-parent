@@ -1,5 +1,7 @@
 package hello.f2boy.mydubbo.io.server;
 
+import hello.f2boy.mydubbo.PrintUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,7 +30,7 @@ public class BioServer1 {
                     int c;
                     while ((c = is.read()) != -1) {
                         if (c == '\n') {
-                            System.out.println(client + " send message: " + message);
+                            PrintUtils.println(client + " send message: " + message);
                             os.write(("your message is: " + message + "\n").getBytes());
                             if (message.equals("bye")) {
                                 socket.close();

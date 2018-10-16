@@ -1,8 +1,5 @@
 package hello.f2boy.mydubbo;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * 生产者-消费者demo
  * 用一个厕所管理员和多个上厕所的人做例子
@@ -53,20 +50,20 @@ public class ProducerConsumerDemo {
         @Override
         public void run() {
             String currentThread = Thread.currentThread().getName();
-            log(currentThread + " try to enter the toilet.");
+            PrintUtils.println(currentThread + " try to enter the toilet.");
             synchronized (toilet) {
-                log(currentThread + " entered the toilet.");
+                PrintUtils.println(currentThread + " entered the toilet.");
                 while (toilet.toiletPaper <= 0) {
-                    log("There is no more paper, " + currentThread + " had to go out and waiting.");
+                    PrintUtils.println("There is no more paper, " + currentThread + " had to go out and waiting.");
                     try {
                         toilet.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    log(currentThread + " reentered the toilet.");
+                    PrintUtils.println(currentThread + " reentered the toilet.");
                 }
                 toilet.toiletPaper--;
-                log(currentThread + " begin shit.");
+                PrintUtils.println(currentThread + " begin shit.");
                 // 模拟shit
                 try {
                     Thread.sleep(shitTime);
@@ -74,7 +71,7 @@ public class ProducerConsumerDemo {
                     e.printStackTrace();
                 }
             }
-            log(currentThread + " finished shit. states: " + allStates(peoples));
+            PrintUtils.println(currentThread + " finished shit. states: " + allStates(peoples));
         }
     }
 
@@ -93,7 +90,7 @@ public class ProducerConsumerDemo {
                 toilet.toiletPaper = 3;
                 toilet.notifyAll();
             }
-            log("After manager added paper, states: " + allStates(peoples));
+            PrintUtils.println("After manager added paper, states: " + allStates(peoples));
         }
     }
 
@@ -102,10 +99,10 @@ public class ProducerConsumerDemo {
         for (People people : peoples) {
             people.start();
         }
-        log("At first, states: " + allStates(peoples));
+        PrintUtils.println("At first, states: " + allStates(peoples));
 
         Thread.sleep(100);
-        log("When all they tried to enter the toilet, states: " + allStates(peoples));
+        PrintUtils.println("When all they tried to enter the toilet, states: " + allStates(peoples));
 
         manager.start();
     }
@@ -117,11 +114,6 @@ public class ProducerConsumerDemo {
         }
 
         return sb.substring(0, sb.length() - 2) + "]";
-    }
-
-    private static void log(String content) {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss:SSS");
-        System.out.println(sdf.format(new Date()) + " - " + content);
     }
 
 }

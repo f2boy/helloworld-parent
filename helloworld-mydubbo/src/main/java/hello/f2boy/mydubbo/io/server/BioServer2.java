@@ -1,5 +1,7 @@
 package hello.f2boy.mydubbo.io.server;
 
+import hello.f2boy.mydubbo.PrintUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,7 +56,7 @@ public class BioServer2 {
                     while ((c = is.read()) != -1) {
                         message += (char) c;
                         if (c == '\n') {
-                            System.out.print(client + " send message: " + message);
+                            PrintUtils.print(client + " send message: " + message);
                             os.write(("your message is: " + message).getBytes());
                             if (message.equals("bye\n")) {
                                 os.write(message.getBytes());
@@ -75,7 +77,7 @@ public class BioServer2 {
                 }
             });
 
-            System.out.println("executor.getActiveCount(): " + executor.getActiveCount());
+            PrintUtils.println("executor.getActiveCount(): " + executor.getActiveCount());
         }
     }
 
@@ -89,7 +91,7 @@ public class BioServer2 {
         executor.shutdown();
         try {
             if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                System.out.println("executor did not shutdown gracefully within 5 seconds.");
+                PrintUtils.println("executor did not shutdown gracefully within 5 seconds.");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
