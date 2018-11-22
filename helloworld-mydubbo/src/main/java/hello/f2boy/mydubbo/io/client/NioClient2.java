@@ -38,7 +38,8 @@ public class NioClient2 {
 
         String resp = "";
         if (blockMode) {
-            PrintUtils.println("\nSocket方式读");
+            System.out.println();
+            PrintUtils.println("Socket方式读");
             InputStream is = socketChannel.socket().getInputStream();
             int c;
             while ((c = is.read()) != -1) {
@@ -47,7 +48,8 @@ public class NioClient2 {
         }
         // SocketChannel方式读，可设置为非阻塞模式
         else {
-            PrintUtils.println("\nSocketChannel方式读");
+            System.out.println();
+            PrintUtils.println("SocketChannel方式读");
             buffer.clear();
             while (socketChannel.read(buffer) != -1) { // 非阻塞模式下，此处while条件会立即返回，也就是说会陷入死循环
                 Thread.sleep(1);

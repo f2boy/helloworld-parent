@@ -38,7 +38,12 @@ public class NioServer3 {
         public void add(SocketChannel socketChannel) {
             newConnections.add(socketChannel);
             selector.wakeup();
-            PrintUtils.println(this.getName() + " add new socket channel, now selector.keys() = " + (selector.keys().size() + 1));
+
+            int validKeys = 0;
+            for (SelectionKey selectionKey : selector.keys()) {
+                if (selectionKey.isValid()) validKeys++;
+            }
+            PrintUtils.println(this.getName() + " add a new socket channel, now its selector's valid keys = " + (validKeys + 1));
         }
 
         private void handleRead(SelectionKey selectionKey) {
@@ -97,7 +102,12 @@ public class NioServer3 {
 
                 if (resp.equals("bye\n")) {
                     socketChannel.close();
-                    PrintUtils.println(client + " process complete.\n");
+                    PrintUtils.println(client + " process complete.");
+                    int validKeys = 0;
+                    for (SelectionKey selectionKey : selector.keys()) {
+                        if (selectionKey.isValid()) validKeys++;
+                    }
+                    PrintUtils.println("now selector's valid keys = " + validKeys + "\n");
                 }
 
             } catch (IOException e) {
@@ -163,9 +173,9 @@ public class NioServer3 {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void listen(int port) throws IOException {
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-        serverSocketChannel.bind(new InetSocketAddress(1234));
+        serverSocketChannel.bind(new InetSocketAddress(port));
         serverSocketChannel.configureBlocking(false);
 
         Selector selector = Selector.open();
@@ -193,6 +203,10 @@ public class NioServer3 {
             }
         }
 
+    }
+
+    public static void main(String[] args) throws IOException {
+        listen(1234);
     }
 
 }
