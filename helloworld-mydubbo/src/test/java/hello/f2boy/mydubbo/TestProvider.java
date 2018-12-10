@@ -21,4 +21,7 @@ public class TestProvider {
         provider.registerService(service);
     }
 
+    public static void main(String[] args) throws IOException {
+        new TestProvider().testRegisterService();
+    }
 }

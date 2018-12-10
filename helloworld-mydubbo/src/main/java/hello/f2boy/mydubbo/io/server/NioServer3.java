@@ -177,6 +177,7 @@ public class NioServer3 {
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.bind(new InetSocketAddress(port));
         serverSocketChannel.configureBlocking(false);
+        PrintUtils.println("------------------------------ 开始监听端口[" + port + "] ------------------------------");
 
         Selector selector = Selector.open();
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);

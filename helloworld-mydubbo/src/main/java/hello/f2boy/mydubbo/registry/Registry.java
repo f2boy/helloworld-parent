@@ -18,6 +18,8 @@ public class Registry {
     private static final String ROOT_PATH = "/mydubbo";
     private static final String PROVIDERS_FOLDER = "/providers";
     private static final String CONSUMERS_FOLDER = "/consumers";
+    private static final String PROVIDER_PATH_FORMAT = ROOT_PATH + "/%s" + PROVIDERS_FOLDER + "/%s";
+    private static final String CONSUMER_PATH_FORMAT = ROOT_PATH + "/%s" + CONSUMERS_FOLDER + "/%s";
     private CuratorFramework client;
 
     public Registry(String address) {
@@ -33,10 +35,11 @@ public class Registry {
      * @param providerIp    服务提供者ip
      */
     public void registerService(String interfaceName, String providerIp) {
+        String path = String.format(PROVIDER_PATH_FORMAT, interfaceName, providerIp);
         try {
-            String path = client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL)
-                    .forPath(ROOT_PATH + "/" + interfaceName + PROVIDERS_FOLDER + "/" + providerIp);
-            log.info("发布服务: " + path);
+            client.delete().quietly().forPath(path);
+            path = client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+            log.info("发布服务: {}", path);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -49,10 +52,11 @@ public class Registry {
      * @param consumerIp    服务订阅者ip
      */
     public void subscribeService(String interfaceName, String consumerIp) {
+        String path = String.format(CONSUMER_PATH_FORMAT, interfaceName, consumerIp);
         try {
-            String path = client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL)
-                    .forPath(ROOT_PATH + "/" + interfaceName + CONSUMERS_FOLDER + "/" + consumerIp);
-            log.info("订阅服务: " + path);
+            client.delete().quietly().forPath(path);
+            path = client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+            log.info("订阅服务: {}", path);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
