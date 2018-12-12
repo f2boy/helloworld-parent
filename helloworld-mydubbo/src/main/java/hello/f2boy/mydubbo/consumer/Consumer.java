@@ -1,6 +1,9 @@
 package hello.f2boy.mydubbo.consumer;
 
+import com.google.gson.Gson;
 import hello.f2boy.mydubbo.registry.Registry;
+import hello.f2boy.mydubbo.rpc.Request;
+import hello.f2boy.mydubbo.rpc.protocal.Protocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,13 +45,33 @@ public class Consumer {
         providerMap.put(interfaceName, providers);
     }
 
-    public void invoke(String interfaceName, String methodName) {
+    public void invoke(String interfaceName, String methodName, Object[] params) {
         List<String> providers = providerMap.get(interfaceName);
         Socket socket = connectionMap.get(providers.get(0));
 
         try {
+
+            Request request = new Request();
+            request.setInterfaceName(interfaceName);
+            request.setMethodName(methodName);
+            request.setParams(params);
+
+            byte[] body = new Gson().toJson(request).getBytes(Protocal.DEFAULT_CHARSET);
+
+            int bodyLength = body.length;
+            byte[] head = new byte[4];
+            head[0] = (byte) ((bodyLength >> 24) & 0xFF);
+            head[1] = (byte) ((bodyLength >> 16) & 0xFF);
+            head[2] = (byte) ((bodyLength >> 8) & 0xFF);
+            head[3] = (byte) (bodyLength & 0xFF);
+
             BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-            bos.write((interfaceName + "##" + methodName + "\nbye\n").getBytes());
+            bos.write(head);
+            bos.write(body);
+            bos.flush();
+            
+            bos.write(head);
+            bos.write(body);
             bos.flush();
 
             InputStream is = socket.getInputStream();

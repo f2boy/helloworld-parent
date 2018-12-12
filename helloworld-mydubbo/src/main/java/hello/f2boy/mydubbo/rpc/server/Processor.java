@@ -1,12 +1,18 @@
 package hello.f2boy.mydubbo.rpc.server;
 
+import hello.f2boy.mydubbo.rpc.protocal.Protocal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -15,13 +21,17 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 class Processor extends Thread {
 
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    private static ThreadGroup threadGroup = new ThreadGroup("dubbo-rpc-processor");
+
     private Selector selector;
     private ByteBuffer receiveBuff = ByteBuffer.allocate(256);
     private ByteBuffer sendBuff = ByteBuffer.allocate(256);
     private final BlockingQueue<SocketChannel> newConnections = new LinkedBlockingDeque<>();
 
     public Processor(String name) {
-        super(name);
+        super(threadGroup, name);
         try {
             selector = Selector.open();
         } catch (IOException e) {
@@ -38,8 +48,8 @@ class Processor extends Thread {
             if (selectionKey.isValid()) validKeys++;
         }
         log.info("添加一个新的 socket channel, now its selector's valid keys = " + (validKeys + 1));
-        log.info("");
     }
+
 
     private void handleRead(SelectionKey selectionKey) {
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
@@ -54,22 +64,49 @@ class Processor extends Thread {
             }
             receiveBuff.flip();
 
+            @SuppressWarnings("unchecked")
+            List<Byte> headBytes = ((ArrayList[]) selectionKey.attachment())[0];
+            @SuppressWarnings("unchecked")
+            List<Byte> bodyBytes = ((ArrayList[]) selectionKey.attachment())[1];
+
             String message = "";
             while (receiveBuff.hasRemaining()) {
-                char c = (char) receiveBuff.get();
-                message += c;
-                if (c == '\n') {
-                    log.info(client + " send message: " + message);
 
-                    String resp = "your message is: " + message;
-                    send(socketChannel, resp);
+                byte b = receiveBuff.get();
 
-                    if (message.equals("bye\n")) {
-                        send(socketChannel, "bye\n");
+                if (headBytes.size() < Protocal.HEAD_LENGTH) {
+                    headBytes.add(b);
+                } else {
+                    int length = (headBytes.get(3) & 0xFF) |
+                            (headBytes.get(2) & 0xFF) << 8 |
+                            (headBytes.get(1) & 0xFF) << 16 |
+                            (headBytes.get(0) & 0xFF) << 24;
+                    
+                    if (bodyBytes.size() < length) {
+                        bodyBytes.add(b);
                     }
 
-                    message = "";
+                    if (bodyBytes.size() == length) {
+                        byte[] body = new byte[length];
+                        for (int i = 0; i < bodyBytes.size(); i++) {
+                            body[i] = bodyBytes.get(i);
+                        }
+
+                        headBytes.clear();
+                        bodyBytes.clear();
+
+                        new Handler() {
+                            @Override
+                            public void writeResp(byte[] out) {
+                                // TODO: 2018/12/12 tcp write response
+                                log.info("client = "+client);
+                                send(socketChannel, "you are "+client);
+//                                send(socketChannel, "bye\n");
+                            }
+                        }.handle(body);
+                    }
                 }
+
             }
 
         } catch (IOException e) {
@@ -124,7 +161,8 @@ class Processor extends Thread {
                         return;
                     }
                     socketChannel.configureBlocking(false);
-                    socketChannel.register(selector, SelectionKey.OP_READ);
+                    // 注册感兴趣读事件，并且绑定两个附件，用于记录每次rpc请求的head和body。head统一4个字节，body每次不一样，初始默认8k
+                    socketChannel.register(selector, SelectionKey.OP_READ, new ArrayList[]{new ArrayList<Byte>(4), new ArrayList<Byte>(8 * 1024)});
                 }
 
                 if (selector.select(5000) == 0) {

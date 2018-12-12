@@ -21,7 +21,7 @@ public final class Acceptor {
 
     private static final Logger log = LoggerFactory.getLogger(Acceptor.class);
 
-    private final int PROCESSOR_NUM = 2;
+    private final int PROCESSOR_NUM = 1;
     private final Processor[] processors = new Processor[PROCESSOR_NUM];
 
     private void onAccept(SelectionKey selectionKey, int current) {

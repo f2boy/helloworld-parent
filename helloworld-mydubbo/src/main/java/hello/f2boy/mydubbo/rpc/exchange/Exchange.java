@@ -1,34 +1,26 @@
 package hello.f2boy.mydubbo.rpc.exchange;
 
+import hello.f2boy.mydubbo.rpc.Request;
+import hello.f2boy.mydubbo.rpc.Response;
 
-public class Exchange<T> {
+public class Exchange {
     
-    private int headLenth;
-    private int bodyLength;
-    
-    private T body;
+    private Request request;
+    private Response response;
 
-    public int getHeadLenth() {
-        return headLenth;
+    public Response getResponse() {
+        return response;
     }
 
-    public void setHeadLenth(int headLenth) {
-        this.headLenth = headLenth;
+    public void setResponse(Response response) {
+        this.response = response;
     }
 
-    public int getBodyLength() {
-        return bodyLength;
+    public Request getRequest() {
+        return request;
     }
 
-    public void setBodyLength(int bodyLength) {
-        this.bodyLength = bodyLength;
-    }
-
-    public T getBody() {
-        return body;
-    }
-
-    public void setBody(T body) {
-        this.body = body;
+    public void setRequest(Request request) {
+        this.request = request;
     }
 }

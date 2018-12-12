@@ -25,7 +25,7 @@ public class TestConsumer {
         String interfaceName = "hello.f2boy.mydubbo.testService";
         consumer.subscribeService(interfaceName, "127.0.0.1");
 
-        consumer.invoke(interfaceName, "hello");
+        consumer.invoke(interfaceName, "hello",new String[]{"aaa", "我爱你"});
 
 //        countDownLatch.await();
     }
