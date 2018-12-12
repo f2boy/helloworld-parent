@@ -2,11 +2,11 @@ package hello.f2boy.mydubbo.rpc;
 
 import java.io.Serializable;
 
-public class Request implements Serializable{
+public class Request implements Serializable {
 
     private String interfaceName;
     private String methodName;
-    
+
     private Object[] params;
 
     public String getInterfaceName() {

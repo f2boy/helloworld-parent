@@ -3,7 +3,9 @@ package hello.f2boy.mydubbo.consumer;
 import com.google.gson.Gson;
 import hello.f2boy.mydubbo.registry.Registry;
 import hello.f2boy.mydubbo.rpc.Request;
-import hello.f2boy.mydubbo.rpc.protocal.Protocal;
+import hello.f2boy.mydubbo.rpc.Response;
+import hello.f2boy.mydubbo.rpc.protocal.JsonProtocol;
+import hello.f2boy.mydubbo.rpc.protocal.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +13,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,38 +53,53 @@ public class Consumer {
         Socket socket = connectionMap.get(providers.get(0));
 
         try {
+            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
 
             Request request = new Request();
             request.setInterfaceName(interfaceName);
             request.setMethodName(methodName);
             request.setParams(params);
 
-            byte[] body = new Gson().toJson(request).getBytes(Protocal.DEFAULT_CHARSET);
-
-            int bodyLength = body.length;
-            byte[] head = new byte[4];
-            head[0] = (byte) ((bodyLength >> 24) & 0xFF);
-            head[1] = (byte) ((bodyLength >> 16) & 0xFF);
-            head[2] = (byte) ((bodyLength >> 8) & 0xFF);
-            head[3] = (byte) (bodyLength & 0xFF);
-
-            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-            bos.write(head);
-            bos.write(body);
+            byte[] out = new JsonProtocol().toOut(request);
+            bos.write(out);
             bos.flush();
-            
-            bos.write(head);
-            bos.write(body);
-            bos.flush();
+
+            List<Byte> headBytes = new ArrayList<>(Protocol.HEAD_LENGTH);
+            List<Byte> bodyBytes = null;
 
             InputStream is = socket.getInputStream();
-            String resp = "";
             int c;
             while ((c = is.read()) != -1) {
-                resp += (char) c;
+                if (headBytes.size() < Protocol.HEAD_LENGTH) {
+                    headBytes.add((byte) c);
+                } else {
+                    int length = (headBytes.get(3) & 0xFF) |
+                            (headBytes.get(2) & 0xFF) << 8 |
+                            (headBytes.get(1) & 0xFF) << 16 |
+                            (headBytes.get(0) & 0xFF) << 24;
+
+                    if (bodyBytes == null) {
+                        bodyBytes = new ArrayList<>(length);
+                    }
+
+                    if (bodyBytes.size() < length) {
+                        bodyBytes.add((byte) c);
+                    }
+
+                    if (bodyBytes.size() == length) {
+                        byte[] body = new byte[length];
+                        for (int i = 0; i < bodyBytes.size(); i++) {
+                            body[i] = bodyBytes.get(i);
+                        }
+
+                        Response response = new JsonProtocol().toResponse(body);
+                        log.info("response = [{}]", new Gson().toJson(response));
+
+                        break;
+                    }
+                }
             }
 
-            log.info("resp = [{}]", resp);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
