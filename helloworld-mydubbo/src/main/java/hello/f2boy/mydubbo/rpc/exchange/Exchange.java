@@ -4,7 +4,7 @@ import hello.f2boy.mydubbo.rpc.Request;
 import hello.f2boy.mydubbo.rpc.Response;
 
 public class Exchange {
-    
+
     private Request request;
     private Response response;
 

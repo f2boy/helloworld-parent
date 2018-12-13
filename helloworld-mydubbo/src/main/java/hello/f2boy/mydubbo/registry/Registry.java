@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 public class Registry {
@@ -20,12 +22,19 @@ public class Registry {
     private static final String CONSUMERS_FOLDER = "/consumers";
     private static final String PROVIDER_PATH_FORMAT = ROOT_PATH + "/%s" + PROVIDERS_FOLDER + "/%s";
     private static final String CONSUMER_PATH_FORMAT = ROOT_PATH + "/%s" + CONSUMERS_FOLDER + "/%s";
+
+    private static Map<String, Registry> instanceMap = new ConcurrentHashMap<>();
     private CuratorFramework client;
 
-    public Registry(String address) {
+    public static Registry getInstance(String address) {
+        instanceMap.putIfAbsent(address, new Registry(address));
+        return instanceMap.get(address);
+    }
+
+    private Registry(String address) {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-        client = CuratorFrameworkFactory.newClient(address, retryPolicy);
-        client.start();
+        this.client = CuratorFrameworkFactory.newClient(address, retryPolicy);
+        this.client.start();
     }
 
     /**
@@ -37,8 +46,8 @@ public class Registry {
     public void registerService(String interfaceName, String providerIp) {
         String path = String.format(PROVIDER_PATH_FORMAT, interfaceName, providerIp);
         try {
-            client.delete().quietly().forPath(path);
-            path = client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+            this.client.delete().quietly().forPath(path);
+            path = this.client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
             log.info("发布服务: {}", path);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -54,8 +63,8 @@ public class Registry {
     public void subscribeService(String interfaceName, String consumerIp) {
         String path = String.format(CONSUMER_PATH_FORMAT, interfaceName, consumerIp);
         try {
-            client.delete().quietly().forPath(path);
-            path = client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+            this.client.delete().quietly().forPath(path);
+            path = this.client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
             log.info("订阅服务: {}", path);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -64,7 +73,7 @@ public class Registry {
 
     public List<String> findProviders(String interfaceName) {
         try {
-            return client.getChildren().forPath(ROOT_PATH + "/" + interfaceName + PROVIDERS_FOLDER);
+            return this.client.getChildren().forPath(ROOT_PATH + "/" + interfaceName + PROVIDERS_FOLDER);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

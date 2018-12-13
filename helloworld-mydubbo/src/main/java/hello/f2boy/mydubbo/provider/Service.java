@@ -1,13 +1,9 @@
 package hello.f2boy.mydubbo.provider;
 
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanReference;
-
 public class Service {
     private String interfaceName;
     private Object bean;
-    private String providerIp; 
-    
+    private String providerIp;
 
     public Service(String interfaceName, Object bean) {
         this.interfaceName = interfaceName;

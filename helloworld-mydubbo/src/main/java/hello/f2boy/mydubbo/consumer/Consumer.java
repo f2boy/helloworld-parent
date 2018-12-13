@@ -27,8 +27,22 @@ public class Consumer {
     private Map<String, Socket> connectionMap = new ConcurrentHashMap<>();
     private Map<String, List<String>> providerMap = new ConcurrentHashMap<>();
 
-    public Consumer(Registry registry) {
+    private Consumer(Registry registry) {
         this.registry = registry;
+    }
+
+    private static Consumer consumer = null;
+
+    public static Consumer init(Registry registry) {
+        consumer = new Consumer(registry);
+        return consumer;
+    }
+
+    public static Consumer getInstance() {
+        if (consumer == null) {
+            throw new RuntimeException("consumer is not inited!");
+        }
+        return consumer;
     }
 
     public void subscribeService(String interfaceName, String consumerIp) {
@@ -48,7 +62,7 @@ public class Consumer {
         providerMap.put(interfaceName, providers);
     }
 
-    public void invoke(String interfaceName, String methodName, Object[] params) {
+    public Object invoke(String interfaceName, String methodName, Object[] params) {
         List<String> providers = providerMap.get(interfaceName);
         Socket socket = connectionMap.get(providers.get(0));
 
@@ -93,9 +107,8 @@ public class Consumer {
                         }
 
                         Response response = new JsonProtocol().toResponse(body);
-                        log.info("response = [{}]", new Gson().toJson(response));
-
-                        break;
+                        log.info("request: {}, response: {}", new Gson().toJson(request), new Gson().toJson(response));
+                        return response.getData();
                     }
                 }
             }
@@ -103,6 +116,8 @@ public class Consumer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        return null;
     }
 
 }
