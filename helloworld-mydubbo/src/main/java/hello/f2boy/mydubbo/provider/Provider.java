@@ -13,7 +13,7 @@ public class Provider {
 
     private Map<String, Object> serviceMap = new ConcurrentHashMap<>();
 
-    private static Provider provider = null;
+    private static Provider instance = null;
 
     private Provider(Registry registry) {
         this.registry = registry;
@@ -28,15 +28,15 @@ public class Provider {
     }
 
     public static Provider init(Registry registry) {
-        provider = new Provider(registry);
-        return provider;
+        instance = new Provider(registry);
+        return instance;
     }
 
     public static Provider getInstance() {
-        if (provider == null) {
-            throw new RuntimeException("provider is not inited!");
+        if (instance == null) {
+            throw new RuntimeException("Consumer instance is not inited!");
         }
-        return provider;
+        return instance;
     }
 
     public void registerService(Service service) {

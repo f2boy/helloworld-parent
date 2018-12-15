@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -33,18 +32,18 @@ public class Consumer {
         this.registry = registry;
     }
 
-    private static Consumer consumer = null;
+    private static Consumer instance = null;
 
     public static Consumer init(Registry registry) {
-        consumer = new Consumer(registry);
-        return consumer;
+        instance = new Consumer(registry);
+        return instance;
     }
 
     public static Consumer getInstance() {
-        if (consumer == null) {
-            throw new RuntimeException("consumer is not inited!");
+        if (instance == null) {
+            throw new RuntimeException("Consumer instance is not inited!");
         }
-        return consumer;
+        return instance;
     }
 
     public void subscribeService(String interfaceName, String consumerIp) {

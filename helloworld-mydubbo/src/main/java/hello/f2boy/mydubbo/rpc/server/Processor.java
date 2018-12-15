@@ -106,7 +106,7 @@ class Processor extends Thread {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("socket读取异常", e);
             selectionKey.cancel();
             try {
                 socketChannel.close();
@@ -133,7 +133,7 @@ class Processor extends Thread {
                 remain = remain - len;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("socket写入异常", e);
             try {
                 socketChannel.close();
             } catch (IOException ignored) {
@@ -159,7 +159,7 @@ class Processor extends Thread {
                     continue;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("socketChannel 异常", e);
                 return;
             }
 

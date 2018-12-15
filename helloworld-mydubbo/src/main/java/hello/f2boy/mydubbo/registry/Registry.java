@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class Registry {
 
@@ -94,6 +95,7 @@ public class Registry {
         List<String> providers = registry.findProviders(interfaceName);
         providers.forEach(System.out::println);
 
-        countDownLatch.await();
+        countDownLatch.await(30, TimeUnit.SECONDS);
     }
+
 }

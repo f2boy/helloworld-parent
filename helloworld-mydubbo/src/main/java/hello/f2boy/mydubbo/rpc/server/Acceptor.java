@@ -43,7 +43,7 @@ public final class Acceptor {
             }
             processors[index].addSocketChannel(socketChannel);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("处理新连接异常", e);
         }
     }
 
@@ -64,7 +64,7 @@ public final class Acceptor {
                     continue;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("监听端口异常", e);
                 return;
             }
 
