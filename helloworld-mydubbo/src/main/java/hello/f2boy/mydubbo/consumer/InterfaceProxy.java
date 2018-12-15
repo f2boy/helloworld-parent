@@ -23,11 +23,4 @@ public class InterfaceProxy {
         return (T) proxyImplMap.get(clazz.getName());
     }
 
-    public InterfaceProxy() {
-        System.out.println("aadfadfadfadfadfadfadaf");
-    }
-
-    public static void main(String[] args) {
-    }
-
 }

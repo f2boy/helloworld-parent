@@ -1,5 +1,7 @@
 package hello.f2boy.mydubbo.rpc.server;
 
+import com.google.gson.Gson;
+import hello.f2boy.mydubbo.rpc.protocal.JsonProtocol;
 import hello.f2boy.mydubbo.rpc.protocal.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,46 +68,41 @@ class Processor extends Thread {
             receiveBuff.flip();
 
             @SuppressWarnings("unchecked")
-            List<Byte> headBytes = ((ArrayList[]) selectionKey.attachment())[0];
-            @SuppressWarnings("unchecked")
-            List<Byte> bodyBytes = ((ArrayList[]) selectionKey.attachment())[1];
-
-            String message = "";
+            List<Byte> inputBytes = (List<Byte>) selectionKey.attachment();
+            int bodyLength = 0;
             while (receiveBuff.hasRemaining()) {
 
                 byte b = receiveBuff.get();
+                inputBytes.add(b);
 
-                if (headBytes.size() < Protocol.HEAD_LENGTH) {
-                    headBytes.add(b);
-                } else {
-                    int length = (headBytes.get(3) & 0xFF) |
-                            (headBytes.get(2) & 0xFF) << 8 |
-                            (headBytes.get(1) & 0xFF) << 16 |
-                            (headBytes.get(0) & 0xFF) << 24;
-
-                    if (bodyBytes.size() < length) {
-                        bodyBytes.add(b);
-                    }
-
-                    if (bodyBytes.size() == length) {
-                        byte[] body = new byte[length];
-                        for (int i = 0; i < bodyBytes.size(); i++) {
-                            body[i] = bodyBytes.get(i);
-                        }
-
-                        headBytes.clear();
-                        bodyBytes.clear();
-
-                        new Handler() {
-                            @Override
-                            public void writeResp(byte[] out) {
-                                log.info("响应客户端： " + client);
-                                send(socketChannel, out);
-                            }
-                        }.handle(body);
+                if (bodyLength == 0 && inputBytes.size() >= Protocol.HEAD_LENGTH) {
+                    bodyLength = (inputBytes.get(3) & 0xFF) |
+                            (inputBytes.get(2) & 0xFF) << 8 |
+                            (inputBytes.get(1) & 0xFF) << 16 |
+                            (inputBytes.get(0) & 0xFF) << 24;
+                    if (bodyLength <= 0) {
+                        throw new RuntimeException("无效的请求（head字节转为int后小于等于0）");
                     }
                 }
 
+                if (inputBytes.size() < Protocol.HEAD_LENGTH + bodyLength) {
+                    continue;
+                }
+
+                byte[] input = new byte[Protocol.HEAD_LENGTH + bodyLength];
+                for (int i = 0; i < inputBytes.size(); i++) {
+                    input[i] = inputBytes.get(i);
+                }
+
+                inputBytes.clear();
+
+                new Handler() {
+                    @Override
+                    public void writeResp(byte[] out) {
+                        log.debug("响应客户端: {} - {}", client, new Gson().toJson(new JsonProtocol().toResponse(out)));
+                        send(socketChannel, out);
+                    }
+                }.handle(input);
             }
 
         } catch (IOException e) {
@@ -120,11 +117,20 @@ class Processor extends Thread {
 
     private void send(SocketChannel socketChannel, byte[] out) {
         try {
-            sendBuff.clear();
-            sendBuff.put(out);
-            sendBuff.flip();
-            while (sendBuff.hasRemaining()) {
-                socketChannel.write(sendBuff);
+            int offset = 0;
+            int remain = out.length;
+            while (remain > 0) {
+                int len = Math.min(sendBuff.capacity(), remain);
+
+                sendBuff.clear();
+                sendBuff.put(out, offset, len);
+                sendBuff.flip();
+                while (sendBuff.hasRemaining()) {
+                    socketChannel.write(sendBuff);
+                }
+
+                offset += len;
+                remain = remain - len;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -145,8 +151,8 @@ class Processor extends Thread {
                         return;
                     }
                     socketChannel.configureBlocking(false);
-                    // 注册感兴趣读事件，并且绑定两个附件，用于记录每次rpc请求的head和body。head统一4个字节，body每次不一样，初始默认8k
-                    socketChannel.register(selector, SelectionKey.OP_READ, new ArrayList[]{new ArrayList<>(Protocol.HEAD_LENGTH), new ArrayList<>(8 * 1024)});
+                    // 注册感兴趣读事件，并且绑定1个附件，用于记录每次rpc请求字节内容。初始默认1k
+                    socketChannel.register(selector, SelectionKey.OP_READ, new ArrayList<>(1024));
                 }
 
                 if (selector.select(5000) == 0) {

@@ -74,43 +74,41 @@ public class Consumer {
             request.setMethodName(methodName);
             request.setParams(params);
 
-            byte[] out = new JsonProtocol().toOut(request);
+            byte[] out = new JsonProtocol().toByte(request);
             bos.write(out);
             bos.flush();
 
-            List<Byte> headBytes = new ArrayList<>(Protocol.HEAD_LENGTH);
-            List<Byte> bodyBytes = null;
+            List<Byte> inputBytes = new ArrayList<>(512);
+            int bodyLength = 0;
 
             InputStream is = socket.getInputStream();
             int c;
             while ((c = is.read()) != -1) {
-                if (headBytes.size() < Protocol.HEAD_LENGTH) {
-                    headBytes.add((byte) c);
-                } else {
-                    int length = (headBytes.get(3) & 0xFF) |
-                            (headBytes.get(2) & 0xFF) << 8 |
-                            (headBytes.get(1) & 0xFF) << 16 |
-                            (headBytes.get(0) & 0xFF) << 24;
+                inputBytes.add((byte) c);
+                log.debug("inputBytes.size() = " + inputBytes.size());
 
-                    if (bodyBytes == null) {
-                        bodyBytes = new ArrayList<>(length);
-                    }
-
-                    if (bodyBytes.size() < length) {
-                        bodyBytes.add((byte) c);
-                    }
-
-                    if (bodyBytes.size() == length) {
-                        byte[] body = new byte[length];
-                        for (int i = 0; i < bodyBytes.size(); i++) {
-                            body[i] = bodyBytes.get(i);
-                        }
-
-                        Response response = new JsonProtocol().toResponse(body);
-                        log.info("request: {}, response: {}", new Gson().toJson(request), new Gson().toJson(response));
-                        return response.getData();
+                if (bodyLength == 0 && inputBytes.size() >= Protocol.HEAD_LENGTH) {
+                    bodyLength = (inputBytes.get(3) & 0xFF) |
+                            (inputBytes.get(2) & 0xFF) << 8 |
+                            (inputBytes.get(1) & 0xFF) << 16 |
+                            (inputBytes.get(0) & 0xFF) << 24;
+                    if (bodyLength <= 0) {
+                        throw new RuntimeException("无效的请求（head字节转为int后小于等于0）");
                     }
                 }
+
+                if (inputBytes.size() < Protocol.HEAD_LENGTH + bodyLength) {
+                    continue;
+                }
+
+                byte[] input = new byte[Protocol.HEAD_LENGTH + bodyLength];
+                for (int i = 0; i < inputBytes.size(); i++) {
+                    input[i] = inputBytes.get(i);
+                }
+
+                Response response = new JsonProtocol().toResponse(input);
+                log.info("request: {}, response: {}", new Gson().toJson(request), new Gson().toJson(response));
+                return response.getData();
             }
 
         } catch (IOException e) {

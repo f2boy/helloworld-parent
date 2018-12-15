@@ -36,9 +36,11 @@ public class TestConsumer {
         // 调用服务
         HelloService helloService = InterfaceProxy.getProxyImpl(HelloService.class);
         helloService.hello("王小二", "张小三");
+        helloService.hello("王小二", "一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容");
+        helloService.hello("一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容一段很长的内容", "一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容一段特别长的内容");
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-//        countDownLatch.await();
+        countDownLatch.await();
     }
 
 

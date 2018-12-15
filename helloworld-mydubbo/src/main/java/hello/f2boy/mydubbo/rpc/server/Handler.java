@@ -6,11 +6,15 @@ import hello.f2boy.mydubbo.rpc.Request;
 import hello.f2boy.mydubbo.rpc.Response;
 import hello.f2boy.mydubbo.rpc.protocal.JsonProtocol;
 import hello.f2boy.mydubbo.rpc.protocal.Protocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public abstract class Handler {
+
+    private static final Logger log = LoggerFactory.getLogger(Handler.class);
 
     public abstract void writeResp(byte[] out);
 
@@ -18,7 +22,7 @@ public abstract class Handler {
         Protocol protocol = new JsonProtocol();
 
         Request request = protocol.toRequest(input);
-        System.out.println("request = " + new Gson().toJson(request));
+        log.info("request = {}", new Gson().toJson(request));
 
         Response response = new Response();
 
@@ -52,10 +56,10 @@ public abstract class Handler {
             }
             response.setCode("100");
             response.setData(res);
-
         }
 
-        byte[] out = protocol.toOut(response);
+        log.info("response = {}", new Gson().toJson(response));
+        byte[] out = protocol.toByte(response);
         this.writeResp(out);
     }
 

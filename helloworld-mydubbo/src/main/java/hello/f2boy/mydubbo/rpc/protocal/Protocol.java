@@ -2,7 +2,6 @@ package hello.f2boy.mydubbo.rpc.protocal;
 
 import hello.f2boy.mydubbo.rpc.Request;
 import hello.f2boy.mydubbo.rpc.Response;
-import hello.f2boy.mydubbo.rpc.exchange.Exchange;
 
 /**
  * 解析
@@ -22,23 +21,23 @@ public interface Protocol {
 //    Exchange parse(byte[] input);
 
     /**
-     * 请求转为byte字节（包含头部的4个字节）
+     * 请求转为byte字节
      */
-    byte[] toOut(Request request);
+    byte[] toByte(Request request);
 
     /**
-     * 响应转为byte字节（包含头部的4个字节）
+     * 响应转为byte字节
      */
-    byte[] toOut(Response response);
+    byte[] toByte(Response response);
 
     /**
-     * tcp接收到的byte数组，转为请求对象（只包含body）
+     * tcp接收到的byte数组，转为请求对象
      */
-    Request toRequest(byte[] body);
+    Request toRequest(byte[] bytes);
 
     /**
-     * tcp接收到的byte数组，转为响应对象（只包含body）
+     * tcp接收到的byte数组，转为响应对象
      */
-    Response toResponse(byte[] body);
+    Response toResponse(byte[] bytes);
 
 }
