@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Consumer {
@@ -56,15 +58,23 @@ public class Consumer {
 
     private void initConnection(String interfaceName) throws IOException {
         List<String> providers = registry.findProviders(interfaceName);
-        for (String provider : providers) {
-            connectionMap.putIfAbsent(provider, new Socket(provider, 20880));
-        }
         providerMap.put(interfaceName, providers);
+
+        for (String provider : providers) {
+            connectionMap.computeIfAbsent(provider, k -> {
+                try {
+                    return new Socket(provider, 20880);
+                } catch (IOException e) {
+                    log.error("连接{}:20880端口异常", provider, e);
+                    return null;
+                }
+            });
+        }
     }
 
     public Object invoke(String interfaceName, String methodName, Object[] params) {
         List<String> providers = providerMap.get(interfaceName);
-        Socket socket = connectionMap.get(providers.get(0));
+        Socket socket = connectionMap.get(providers.get(new Random().nextInt(connectionMap.size())));
 
         try {
             BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
@@ -116,6 +126,16 @@ public class Consumer {
         }
 
         return null;
+    }
+
+    public void close() {
+        for (Socket socket : connectionMap.values()) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 }

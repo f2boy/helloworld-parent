@@ -27,8 +27,7 @@ public class Registry {
     private CuratorFramework client;
 
     public static Registry getInstance(String address) {
-        instanceMap.putIfAbsent(address, new Registry(address));
-        return instanceMap.get(address);
+        return instanceMap.computeIfAbsent(address, k -> new Registry(address));
     }
 
     private Registry(String address) {
