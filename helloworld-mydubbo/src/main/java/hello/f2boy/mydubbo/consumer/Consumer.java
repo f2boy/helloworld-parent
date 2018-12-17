@@ -34,9 +34,8 @@ public class Consumer {
 
     private static Consumer instance = null;
 
-    public static Consumer init(Registry registry) {
+    public static void init(Registry registry) {
         instance = new Consumer(registry);
-        return instance;
     }
 
     public static Consumer getInstance() {

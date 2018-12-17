@@ -27,14 +27,13 @@ public class Provider {
         }).start();
     }
 
-    public static Provider init(Registry registry) {
+    public static void init(Registry registry) {
         instance = new Provider(registry);
-        return instance;
     }
 
     public static Provider getInstance() {
         if (instance == null) {
-            throw new RuntimeException("Consumer instance is not inited!");
+            throw new RuntimeException("Provider instance is not inited!");
         }
         return instance;
     }
