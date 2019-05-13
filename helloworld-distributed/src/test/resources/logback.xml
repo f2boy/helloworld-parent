@@ -8,9 +8,12 @@
         </encoder>
     </appender>
 
+    <logger name="org" level="WARN" />
+    <logger name="com.alibaba" level="WARN" />
+
     <!-- level: FATAL,ERROR,WARN,INFO,DEBUG,TRACE -->
     <root>
-        <level value="INFO" />
+        <level value="DEBUG" />
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
