@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- jedis pool通用配置  -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="${redis.maxIdle}" />
+        <property name="maxWaitMillis" value="${redis.maxWait}" />
+        <property name="testOnBorrow" value="${redis.testOnBorrow}" />
+        <property name="maxTotal" value="${redis.maxTotal}" />
+        <property name="minIdle" value="${redis.minIdle}" />
+        <property name="testOnReturn" value="${redis.testOnReturn}" />
+        <property name="testWhileIdle" value="${redis.testWhileIdle}" />
+    </bean>
+
+    <bean id="redisClusterResourcePropertySource" class="org.springframework.core.io.support.ResourcePropertySource">
+        <constructor-arg name="name" value="redis.properties" />
+        <constructor-arg name="resource" value="classpath:config/redis.properties" />
+    </bean>
+    <bean id="redisClusterConfiguration" class="org.springframework.data.redis.connection.RedisClusterConfiguration">
+        <constructor-arg name="propertySource" ref="redisClusterResourcePropertySource" />
+        <property name="password">
+            <bean class="org.springframework.data.redis.connection.RedisPassword" >
+                <constructor-arg value="${spring.redis.cluster.password}" />
+            </bean>
+        </property>
+    </bean>
+    <bean id="redisClusterConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <constructor-arg ref="redisClusterConfiguration" />
+        <constructor-arg ref="jedisPoolConfig" />
+    </bean>
+
+    <!-- key和value都用string序列化方式的redis模板类 -->
+    <bean id="stringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+        <property name="connectionFactory" ref="redisClusterConnectionFactory" />
+    </bean>
+
+</beans>
