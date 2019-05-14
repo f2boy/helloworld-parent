@@ -2,6 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <bean id="propertyConfigurerForNoReload" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreResourceNotFound" value="false" />
+        <property name="ignoreUnresolvablePlaceholders" value="false" />
+        <property name="locations">
+            <list>
+                <value>classpath:config/redis.properties</value>
+            </list>
+        </property>
+    </bean>
+
     <!-- jedis pool通用配置  -->
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
         <property name="maxIdle" value="${redis.maxIdle}" />
@@ -20,7 +30,7 @@
     <bean id="redisClusterConfiguration" class="org.springframework.data.redis.connection.RedisClusterConfiguration">
         <constructor-arg name="propertySource" ref="redisClusterResourcePropertySource" />
         <property name="password">
-            <bean class="org.springframework.data.redis.connection.RedisPassword" >
+            <bean class="org.springframework.data.redis.connection.RedisPassword">
                 <constructor-arg value="${spring.redis.cluster.password}" />
             </bean>
         </property>

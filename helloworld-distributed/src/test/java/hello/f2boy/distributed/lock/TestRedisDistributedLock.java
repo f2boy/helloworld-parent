@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath*:spring/applicationContext-test.xml", "classpath*:spring/applicationContext-test-redis.xml"})
+@ContextConfiguration(locations = {"classpath*:spring/applicationContext-test-redis.xml"})
 public class TestRedisDistributedLock {
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -28,7 +28,7 @@ public class TestRedisDistributedLock {
 
     @Before
     public void setUp() throws Exception {
-        lock = new RedisDistributedLock(redisTemplate, "test-lock");
+        lock = new RedisDistributedLock(redisTemplate, "test-redis-lock");
     }
 
     @After
@@ -61,11 +61,14 @@ public class TestRedisDistributedLock {
                 lock.lock(currentRequestId);
                 lock.lock(currentRequestId);
                 lock.lock(currentRequestId);
-                lock.lock(currentRequestId);
-                lock.lock(currentRequestId);
                 var++;
                 log.info("var = " + var);
                 lock.unlock(currentRequestId);
+                var++;
+                log.info("var = " + var);
+                lock.unlock(currentRequestId);
+                var++;
+                log.info("var = " + var);
                 lock.unlock(currentRequestId);
                 countDownLatch.countDown();
             }).start();
@@ -73,7 +76,6 @@ public class TestRedisDistributedLock {
 
         countDownLatch.await();
         log.info("final var = " + var);
-
     }
 
     public class Request implements Runnable {

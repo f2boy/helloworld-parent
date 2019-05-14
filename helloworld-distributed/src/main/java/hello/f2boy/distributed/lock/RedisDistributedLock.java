@@ -6,10 +6,16 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractOwnableSynchronizer;
+import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 public class RedisDistributedLock extends AbstractOwnableSynchronizer implements DistributedLock {
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * 用于重入的状态，这里与{@link AbstractQueuedSynchronizer#getState}不同，不需要是volatile类型
+     */
+    private int state = 0;
 
     private RedisTemplate<String, String> redisTemplate;
     private String lockKey;
@@ -30,29 +36,33 @@ public class RedisDistributedLock extends AbstractOwnableSynchronizer implements
         }
 
         final Thread current = Thread.currentThread();
-        boolean success = false;
 
         // 支持重入
         if (current == getExclusiveOwnerThread()) {
+            boolean reenterSuccess = false;
             if (currentRequestId.equals(redisTemplate.opsForValue().get(lockKey))) {
-                success = redisTemplate.expire(lockKey, 10, TimeUnit.SECONDS);
-                if (success) {
+                reenterSuccess = redisTemplate.expire(lockKey, 10, TimeUnit.SECONDS);
+                if (reenterSuccess) {
                     // 重新校验，确保redis中锁被当前线程持有
-                    success = currentRequestId.equals(redisTemplate.opsForValue().get(lockKey));
+                    reenterSuccess = currentRequestId.equals(redisTemplate.opsForValue().get(lockKey));
                 }
+            }
+            if (reenterSuccess) {
+                log.info("reenter lock success. [key={}, currentRequestId={}]", lockKey, currentRequestId);
+                this.state++;
+                return;
+            } else {
+                setExclusiveOwnerThread(null);
+                this.state = 0;
             }
         }
 
-        if (success) {
-            log.info("reenter lock success. [key={}, currentRequestId={}]", lockKey, currentRequestId);
-            return;
-        }
-
         while (true) {
-            success = redisTemplate.opsForValue().setIfAbsent(lockKey, currentRequestId, 10, TimeUnit.SECONDS);
+            boolean success = redisTemplate.opsForValue().setIfAbsent(lockKey, currentRequestId, 10, TimeUnit.SECONDS);
             if (success) {
                 log.info("lock success. [key={}, currentRequestId={}]", lockKey, currentRequestId);
                 setExclusiveOwnerThread(current);
+                this.state = 1;
                 break;
             }
 
@@ -79,8 +89,11 @@ public class RedisDistributedLock extends AbstractOwnableSynchronizer implements
 
         // TODO: 2019/5/13 此处两句redis操作有原子性问题，需改为lua脚本 
         if (currentRequestId.equals(redisTemplate.opsForValue().get(lockKey))) {
-            redisTemplate.delete(lockKey);
-            setExclusiveOwnerThread(null);
+            this.state--;
+            if (this.state == 0) {
+                redisTemplate.delete(lockKey);
+                setExclusiveOwnerThread(null);
+            }
             log.info("unlock success. [key={}, currentRequestId={}]", lockKey, currentRequestId);
         }
     }
