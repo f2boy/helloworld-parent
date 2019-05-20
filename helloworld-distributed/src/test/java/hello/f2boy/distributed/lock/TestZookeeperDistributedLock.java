@@ -42,7 +42,7 @@ public class TestZookeeperDistributedLock {
 
     @Test
     public void testLock() throws InterruptedException {
-        int times = 10;
+        int times = 3;
         CountDownLatch countDownLatch = new CountDownLatch(times);
 
         for (int i = 0; i < times; i++) {
